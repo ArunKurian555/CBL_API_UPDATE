@@ -15,24 +15,41 @@ namespace CBL2
 
     public class Config
     {
-        public static Configuration Setting;  //Static?  YES!  This makes sure we have only ONE as a static member meaning it can exist only once.
-
+       
         private HttpCwsRoute myRoute;
         private HttpCwsServer myServer;
 
-              public Config(string Filename)
+        public Config(string Filename)
         {
             Setting = new Configuration();                              // Create an instance of our Configuration class that will
             Cws("app", "settings");
         }
+        public Configuration Setting;
 
-        public Configuration getSetting()
+
+        private string _apiRequest;
+        public string apiRequest
         {
-            return Setting;
+            get
+            {
+                OnSettingsChanged();
+                return _apiRequest;
+            }
+            set
+            {
+                OnSettingsChanged();
+                if (_apiRequest != value)
+                {
+                    _apiRequest = value;
+                }
+            }
         }
-        public void putSetting(Configuration newSetting)
+        public delegate void apiRequestChangedEventHandler();
+        public event apiRequestChangedEventHandler apiRequestChanged;
+
+        protected virtual void OnSettingsChanged()
         {
-            Setting = newSetting;
+            apiRequestChanged?.Invoke();
         }
 
 
@@ -40,7 +57,7 @@ namespace CBL2
         {
             myServer = new HttpCwsServer("/" + path);
             myRoute = new HttpCwsRoute(route + "/{REQUEST}");
-            myRoute.RouteHandler = new ConfigRequestHandler();
+            myRoute.RouteHandler = new ConfigRequestHandler(this);
             myServer.AddRoute(myRoute);
             if (myServer.Register())
             {
@@ -49,8 +66,14 @@ namespace CBL2
         }
         public class ConfigRequestHandler : IHttpCwsHandler
         {
+            public Config config;
 
             private HttpCwsContext _context;
+
+            public ConfigRequestHandler(Config config)
+            {
+                this.config = config;
+            }
             public void ProcessRequest(HttpCwsContext context)
             {
                 _context = context;
@@ -70,19 +93,20 @@ namespace CBL2
                             {
                                 if (_context.Request.RouteData.Values["REQUEST"].ToString().ToLower() == "levels")
                                 {
-                                    string response = JsonConvert.SerializeObject(Config.Setting.zoneLevels);
+                                    string response = JsonConvert.SerializeObject(config.Setting.zoneLevels);
+                                    
                                     GenerateResponseHeader();
                                     _context.Response.Write(response, true);
                                 }
                                 else if (_context.Request.RouteData.Values["REQUEST"].ToString().ToLower() == "names")
                                 {
-                                    string response = JsonConvert.SerializeObject(Config.Setting.zoneNames);
+                                    string response = JsonConvert.SerializeObject(config.Setting.zoneNames);
                                     GenerateResponseHeader();
                                     _context.Response.Write(response, true);
                                 }
                                 else if (_context.Request.RouteData.Values["REQUEST"].ToString().ToLower() == "all")
                                 {
-                                    string response = JsonConvert.SerializeObject(Config.Setting);
+                                    string response = JsonConvert.SerializeObject(config.Setting);
                                     GenerateResponseHeader();
                                     _context.Response.Write(response, true);
                                 }
@@ -106,7 +130,8 @@ namespace CBL2
                                         // We only want to update the endpoint list so we have to reference it properly as a List<NVX>
                                         // This will overwrite the whole list, not append to it.
 
-                                        Config.Setting.zoneLevels = JsonConvert.DeserializeObject<ushort[]>(requestContents);
+                                        config.Setting.zoneLevels = JsonConvert.DeserializeObject<ushort[]>(requestContents);
+                                        config.apiRequest = " ";
                                     }
                                     _context.Response.Write("OK", true);
                                 }
@@ -115,7 +140,8 @@ namespace CBL2
                                     using (var myreader =
                                            new Crestron.SimplSharp.CrestronIO.StreamReader(_context.Request.InputStream))
                                     {
-                                        Config.Setting.zoneNames = JsonConvert.DeserializeObject<string[]>(requestContents);
+                                        config.Setting.zoneNames = JsonConvert.DeserializeObject<string[]>(requestContents);
+                                        config.apiRequest = " ";
                                     }
                                     _context.Response.Write("Endpoint OK", true);
                                 }
@@ -125,7 +151,8 @@ namespace CBL2
                                     using (var myreader =
                                            new Crestron.SimplSharp.CrestronIO.StreamReader(_context.Request.InputStream))
                                     {
-                                        Config.Setting = JsonConvert.DeserializeObject<Configuration>(requestContents);
+                                        config.Setting = JsonConvert.DeserializeObject<Configuration>(requestContents);
+                                        config.apiRequest = " ";
                                     }
                                     _context.Response.Write("Endpoint OK", true);
                                 }
