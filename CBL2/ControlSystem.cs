@@ -27,6 +27,7 @@ namespace CBL2
         bool[] activeZones = new bool[250];
         string[,] sceneData, zoneAreaData, tempdata;
         ushort[] zoneLevels = new ushort[300];
+        string[] zoneNames = new string[300];
         ushort[] zoneLevelsCopy = new ushort[300];
         public Config zoneDetails = new Config("CBL");
         double percent = 655.35;
@@ -277,6 +278,16 @@ namespace CBL2
 
                         }
                         break;
+
+
+                    case eSigType.String:
+                        if (args.Sig.Number < 300)
+                        {
+                            zoneNames[args.Sig.Number] = api.StringOutput[args.Sig.Number].StringValue;
+                            zoneDetails.Setting.zoneNames[args.Sig.Number] = zoneNames[args.Sig.Number];
+                          
+                        }
+                        break;
                 }
             }
             catch (Exception ex)
@@ -299,7 +310,7 @@ namespace CBL2
                 #region EISC Reg
 
 
-                api = new ThreeSeriesTcpIpEthernetIntersystemCommunications(0xC1, "127.0.0.2", this);
+                api = new ThreeSeriesTcpIpEthernetIntersystemCommunications(0xF1, "127.0.0.2", this);
                 if (api.Register() == eDeviceRegistrationUnRegistrationResponse.Success)
                     api.SigChange += Eisc_SigChange;
                 else
