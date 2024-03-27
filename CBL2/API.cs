@@ -22,7 +22,7 @@ namespace CBL2
         public Config(string Filename)
         {
             Setting = new Configuration();                              // Create an instance of our Configuration class that will
-            Cws("app", "settings");
+           /* Cws("app", "settings");*/ // CWS DISABLED FOR TCPAPI
         }
         public Configuration Setting;
 
@@ -100,9 +100,9 @@ namespace CBL2
                                 }
                                 else if (_context.Request.RouteData.Values["REQUEST"].ToString().ToLower() == "names")
                                 {
-                                    string response = JsonConvert.SerializeObject(config.Setting.zoneNames);
+                    /*                string response = JsonConvert.SerializeObject(config.Setting.zoneNames);
                                     GenerateResponseHeader();
-                                    _context.Response.Write(response, true);
+                                    _context.Response.Write(response, true);*/
                                 }
                                 else if (_context.Request.RouteData.Values["REQUEST"].ToString().ToLower() == "all")
                                 {
@@ -140,7 +140,7 @@ namespace CBL2
                                     using (var myreader =
                                            new Crestron.SimplSharp.CrestronIO.StreamReader(_context.Request.InputStream))
                                     {
-                                        config.Setting.zoneNames = JsonConvert.DeserializeObject<string[]>(requestContents);
+                                      /*  config.Setting.zoneNames = JsonConvert.DeserializeObject<string[]>(requestContents);*/
                                         config.apiRequest = " ";
                                     }
                                     _context.Response.Write("Endpoint OK", true);
@@ -182,15 +182,15 @@ namespace CBL2
         public class Configuration
         {
             public ushort[] zoneLevels = new ushort[300];
-            public string[] zoneNames = new string[300];
-
+           /* public string[] zoneNames = new string[300];
+*/
             public Configuration()
             {
-                for (int i = 0; i < zoneNames.Length; i++)
+  /*              for (int i = 0; i < zoneNames.Length; i++)
                 {
                     zoneNames[i] = "Default Zone Name";
                 }
-                for (int i = 0; i < zoneLevels.Length; i++)
+  */              for (int i = 0; i < zoneLevels.Length; i++)
                 {
                     zoneLevels[i] = 100;
                 }

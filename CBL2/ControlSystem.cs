@@ -28,12 +28,23 @@ namespace CBL2
         string[,] sceneData, zoneAreaData, tempdata;
         ushort[] zoneLevels = new ushort[300];
         string[] zoneNames = new string[300];
-        ushort[] zoneLevelsCopy = new ushort[300];
         public Config zoneDetails = new Config("CBL");
         double percent = 655.35;
+        private TCPServer tcpServer = new TCPServer(); 
+        
+        public Config.Configuration Setting { get; } = new Config.Configuration();
+     
 
 
 
+
+        private void tcpUpdate()
+        {
+            if (tcpServer.activeConnection)
+            {
+                    tcpServer.SendData();
+            }
+        }
 
 
         public ControlSystem()
@@ -44,7 +55,8 @@ namespace CBL2
                 Thread.MaxNumberOfUserThreads = 20;
                 CrestronConsole.AddNewConsoleCommand(RET, "Read", "Output the file content.", ConsoleAccessLevelEnum.AccessOperator);
                 zoneDetails.apiRequestChanged += ApiTrigger;
-                
+                tcpServer.apiRequestChanged += TCPApiTrigger;
+
             }
             catch (Exception e)
             {
@@ -52,6 +64,27 @@ namespace CBL2
             }
         }
 
+
+        private void TCPApiTrigger()
+
+        {
+
+            uint i = 1000;
+            zoneLevels = tcpServer.config.zoneLevels;
+
+            for (i = 0; i < zoneLevels.Length; i++)
+            {
+                ushort level = (ushort)(zoneLevels[i] * percent);
+                if (i > 0)
+                    if (level != api.UShortInput[i].UShortValue)
+                    {
+
+                        api.UShortInput[i].UShortValue = level;
+                    }
+            }
+
+
+        }
         private void ApiTrigger()
 
         {
@@ -69,9 +102,6 @@ namespace CBL2
                     api.UShortInput[i].UShortValue = level;
                 }
             }
-
-           
-
 
             
         }
@@ -127,7 +157,7 @@ namespace CBL2
 
                                     if (i < 251)
                                           zoneAreaData[i + 1, 0] = nameSave.StringOutput[1].StringValue;
-                                          zoneDetails.Setting.zoneNames[i] = zoneAreaData[i + 1, 0];
+                                        /*  zoneDetails.Setting.zoneNames[i] = zoneAreaData[i + 1, 0];*/
     
                                     if (i > 250)
                                         zoneAreaData[0, i - 250] = nameSave.StringOutput[1].StringValue;
@@ -153,7 +183,7 @@ namespace CBL2
                                 if (i < 251)
                                 {
                                     nameSave.StringInput[i].StringValue = zoneAreaData[i + 1, 0];
-                                    zoneDetails.Setting.zoneNames[i] = zoneAreaData[i + 1, 0];
+                                   /* zoneDetails.Setting.zoneNames[i] = zoneAreaData[i + 1, 0];*/
                                 }
                                 if (i > 250)
                                 {
@@ -273,9 +303,14 @@ namespace CBL2
                         if (args.Sig.Number < 300)
                         {
                             zoneLevels[args.Sig.Number] = (ushort) (api.UShortOutput[args.Sig.Number].UShortValue / percent);
-                            zoneDetails.Setting.zoneLevels[args.Sig.Number] = zoneLevels[args.Sig.Number];
-                            Array.Copy(zoneLevels, zoneLevelsCopy, zoneLevels.Length);
+                            if (zoneDetails.Setting.zoneLevels[args.Sig.Number] != zoneLevels[args.Sig.Number])
+                            {
+                                zoneDetails.Setting.zoneLevels[args.Sig.Number] = zoneLevels[args.Sig.Number];
+                                tcpUpdate();
+                            }
+                            
 
+                            
                         }
                         break;
 
@@ -284,8 +319,9 @@ namespace CBL2
                         if (args.Sig.Number < 300)
                         {
                             zoneNames[args.Sig.Number] = api.StringOutput[args.Sig.Number].StringValue;
-                            zoneDetails.Setting.zoneNames[args.Sig.Number] = zoneNames[args.Sig.Number];
-                          
+                            /*zoneDetails.Setting.zoneNames[args.Sig.Number] = zoneNames[args.Sig.Number];*/
+                            /*tcpUpdate();*/
+
                         }
                         break;
                 }
@@ -348,15 +384,25 @@ namespace CBL2
 
                 #endregion
 
-
-                Array.Copy(zoneLevels, zoneLevelsCopy, zoneLevels.Length);
-
+               
+                StartTCPServer();
+               
             }
             catch (Exception e)
             {
                 CrestronConsole.PrintLine("Error in InitializeSystem: {0}", e.Message);
             }
         }
+
+        private async void StartTCPServer()
+        {
+
+
+            tcpServer.config = zoneDetails.Setting;
+            await tcpServer.StartServerAsync();
+
+        }
+
 
         private void InfoRet()
         {

@@ -380,3 +380,4 @@ C:\Users\L2\source\repos\CBL2\CBL_API_UPDATE\CBL2\obj\Debug\CBL2.csproj.CoreComp
 C:\Users\L2\source\repos\CBL2\CBL_API_UPDATE\CBL2\obj\Debug\CBL2.csproj.CopyComplete
 C:\Users\L2\source\repos\CBL2\CBL_API_UPDATE\CBL2\obj\Debug\CBL2.dll
 C:\Users\L2\source\repos\CBL2\CBL_API_UPDATE\CBL2\obj\Debug\CBL2.pdb
+C:\Users\L2\source\repos\CBL2\CBL_API_UPDATE\CBL2\obj\Debug\CBL2.csproj.AssemblyReference.cache
