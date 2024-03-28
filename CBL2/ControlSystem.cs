@@ -33,8 +33,6 @@ namespace CBL2
         private TCPServer tcpServer = new TCPServer(); 
         
         public Config.Configuration Setting { get; } = new Config.Configuration();
-     
-
 
 
 
@@ -43,6 +41,7 @@ namespace CBL2
             if (tcpServer.activeConnection)
             {
                     tcpServer.SendData();
+                 
             }
         }
 
@@ -66,12 +65,9 @@ namespace CBL2
 
 
         private void TCPApiTrigger()
-
         {
-
-            uint i = 1000;
+            uint i = 0;
             zoneLevels = tcpServer.config.zoneLevels;
-
             for (i = 0; i < zoneLevels.Length; i++)
             {
                 ushort level = (ushort)(zoneLevels[i] * percent);
@@ -82,8 +78,6 @@ namespace CBL2
                         api.UShortInput[i].UShortValue = level;
                     }
             }
-
-
         }
         private void ApiTrigger()
 
@@ -308,9 +302,7 @@ namespace CBL2
                                 zoneDetails.Setting.zoneLevels[args.Sig.Number] = zoneLevels[args.Sig.Number];
                                 tcpUpdate();
                             }
-                            
 
-                            
                         }
                         break;
 

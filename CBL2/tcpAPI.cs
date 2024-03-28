@@ -41,25 +41,7 @@ namespace CBL2
             apiRequestChanged?.Invoke();
         }
 
-        public void SendData()
-        {
-            if (activeConnection)
-            {
-                string jsonData = JsonConvert.SerializeObject(config);
-                byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonData);
-                byte[] newlineBytes = Encoding.UTF8.GetBytes("\n");
-                try
-                {
-                stream.Write(jsonBytes, 0, jsonBytes.Length);
-                stream.Write(newlineBytes, 0, newlineBytes.Length);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error: {e.Message}");
-
-                }
-            }
-        }
+       
         public async Task StartServerAsync()
         {
             string host = "0.0.0.0"; 
@@ -81,7 +63,7 @@ namespace CBL2
                 {
                     // Perform a non-blocking call to accept requests
                     TcpClient client = await server.AcceptTcpClientAsync();
-                    Console.WriteLine("Client connected.");
+                   
                     stream = client.GetStream();
                     activeConnection = true;
                     SendData();
@@ -102,7 +84,25 @@ namespace CBL2
                 activeConnection = false;
             }
         }
+        public void SendData()
+        {
+            if (activeConnection)
+            {
+                string jsonData = JsonConvert.SerializeObject(config);
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonData);
+                byte[] newlineBytes = Encoding.UTF8.GetBytes("\n");
+                try
+                {
+                    stream.Write(jsonBytes, 0, jsonBytes.Length);
+                    stream.Write(newlineBytes, 0, newlineBytes.Length);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error: {e.Message}");
 
+                }
+            }
+        }
         async Task HandleClientAsync(TcpClient client, NetworkStream stream)
         {
 
@@ -146,7 +146,7 @@ namespace CBL2
                     }
                     catch 
                     {
-                        Console.WriteLine("Failed to deserialize JSON: ");
+                       
                         continue;
                     }
 
@@ -160,7 +160,7 @@ namespace CBL2
             {
                 stream.Close();
 
-                Console.WriteLine("Client disconnected.");
+                
             }
         }
 
