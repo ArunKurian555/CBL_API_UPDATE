@@ -74,7 +74,6 @@ namespace CBL2
                 if (i > 0)
                     if (level != api.UShortInput[i].UShortValue)
                     {
-
                         api.UShortInput[i].UShortValue = level;
                     }
             }
@@ -311,8 +310,8 @@ namespace CBL2
                         if (args.Sig.Number < 300)
                         {
                             zoneNames[args.Sig.Number] = api.StringOutput[args.Sig.Number].StringValue;
-                            /*zoneDetails.Setting.zoneNames[args.Sig.Number] = zoneNames[args.Sig.Number];*/
-                            /*tcpUpdate();*/
+                            zoneDetails.Setting.zoneNames[args.Sig.Number] = zoneNames[args.Sig.Number];
+                            tcpUpdate();
 
                         }
                         break;

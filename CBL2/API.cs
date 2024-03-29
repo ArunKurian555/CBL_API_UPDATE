@@ -182,15 +182,15 @@ namespace CBL2
         public class Configuration
         {
             public ushort[] zoneLevels = new ushort[300];
-           /* public string[] zoneNames = new string[300];
-*/
+            public string[] zoneNames = new string[300];
+
             public Configuration()
             {
-  /*              for (int i = 0; i < zoneNames.Length; i++)
+               for (int i = 0; i < zoneNames.Length; i++)
                 {
                     zoneNames[i] = "Default Zone Name";
                 }
-  */              for (int i = 0; i < zoneLevels.Length; i++)
+                for (int i = 0; i < zoneLevels.Length; i++)
                 {
                     zoneLevels[i] = 100;
                 }
